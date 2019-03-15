@@ -1,0 +1,135 @@
+
+# Set my working directory to put things in the right place.  
+# You will need to adjust this for where you have the data.
+
+setwd("/Users/mmgdepartment/Dropbox/Modularity/V000")
+
+#Start Code
+
+#Read in data
+# First line sets what the base path that everything else contains is.
+# Second line finds just those portions which contain whatever is in the quotation marks
+# and retains them
+
+# This starting with a . gives me a relative path based on the setwd;
+# This one works with just the results; I will need to repeat with the initials.
+
+# Modifying an old parsing script to handle the new data:
+
+dirs <- list.dirs(path = "./CE", recursive=FALSE)
+
+
+
+#Make sure that files from same replicate get merged appropriately
+
+# Take just the max update for each file; looking at just endpoints
+results.data <- NULL #This section adapted from stackoverflow.com answer
+
+
+
+for (d in dirs) {
+	for (d2 in list.dirs(path = d, recursive = FALSE)){
+    
+		average_file_path <- paste(d2, "analyze", "modularity_dominant-199500.dat", sep = "/")
+
+		
+    
+
+			info <- read.csv(average_file_path, header = F, sep = " ", na.strings = "", colClasses = "character")
+
+			info <- info[,1:45]		
+			info <- cbind(info, "CE")
+			
+			
+			foo <- tail(unlist(strsplit(d, split = "/", fixed = T)), n=1)
+
+			info <- cbind(info, foo, tail(unlist(strsplit(foo, split = "_", fixed = T)), n=1))
+			
+
+			results.data <- rbind(results.data, info)
+			
+		}
+	}
+
+CE.data <- results.data
+
+colnames(CE.data) <- c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28", "C29", "C30", "C31", "C32", "C33", "C34", "C35", "C36", "C37", "C38", "C39", "C40", "C41", "C42", "C43", "C44", "C45", "Treatment", "Path", "Seed")
+
+# Repeat for the set of NO HGT:
+
+
+dirs <- list.dirs(path = "./NO", recursive=FALSE)
+
+
+
+#Make sure that files from same replicate get merged appropriately
+
+# Take just the max update for each file; looking at just endpoints
+results.data <- NULL #This section adapted from stackoverflow.com answer
+
+
+
+for (d in dirs) {
+	for (d2 in list.dirs(path = d, recursive = FALSE)){
+    
+		average_file_path <- paste(d2, "analyze", "modularity_dominant-199500.dat", sep = "/")
+
+		
+    
+
+			info <- read.csv(average_file_path, header = F, sep = " ", na.strings = "", colClasses = "character")
+
+			info <- info[,1:45]		
+			info <- cbind(info, "NO")
+			
+			
+			foo <- tail(unlist(strsplit(d, split = "/", fixed = T)), n=1)
+
+			info <- cbind(info, foo, tail(unlist(strsplit(foo, split = "_", fixed = T)), n=1))
+			
+
+			results.data <- rbind(results.data, info)
+			
+		}
+	}
+
+NO.data <- results.data
+
+colnames(NO.data) <- c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12", "C13", "C14", "C15", "C16", "C17", "C18", "C19", "C20", "C21", "C22", "C23", "C24", "C25", "C26", "C27", "C28", "C29", "C30", "C31", "C32", "C33", "C34", "C35", "C36", "C37", "C38", "C39", "C40", "C41", "C42", "C43", "C44", "C45", "Treatment", "Path", "Seed")
+
+
+
+Combined.data <- rbind(CE.data, NO.data)
+
+
+write.csv(Combined.data, file="Combined.data.csv")
+
+Combined.frame <- as.data.frame(Combined.data)
+Combined.frame$C2 <- as.numeric(as.character(Combined.frame$C2))
+Combined.frame$C5 <- as.numeric(as.character(Combined.frame$C5))
+Combined.frame$C7 <- as.numeric(as.character(Combined.frame$C7))
+
+Just.CE <- subset(Combined.frame, Treatment=="CE")
+Just.NO <- subset(Combined.frame, Treatment=="NO")
+
+# Question 1: Does HGT lead to a different number of tasks compared to a changing environment with no HGT?
+
+wilcox.test(Combined.frame$C2 ~ Combined.frame$Treatment)
+
+# Yes.  HGT leads to slightly more tasks than no HGT in a changing environment (mean 2.956 v 2.149; Wilcoxanrank sum test W = 1642, p ~1.865 e -7)
+
+# Question 2: Does HGT lead to a different number of tasks per site per task versus no HGT?
+
+wilcox.test(Combined.frame$C7 ~ Combined.frame$Treatment)
+
+# Yes, but in the *opposite* direction.  There are more tasks per site with no HGT, but there are more tasks with HGT.  (mean 0.6293 vs 0.5077, Wilcoxan rank sum text, W = 592.5, p = 0.0002843)
+
+# Question 3: Does HGT lead to a different number of tasks per site vs no HGT?
+
+wilcox.test(Combined.frame$C5 ~ Combined.frame$Treatment)
+
+# Yes.  More tasks per site with HGT.  (Mean 1.480 v 1.300, Wilcoxan rank sum test, W = 1396, p = 0.008241).  
+# This is what I'd expect given that there are more tasks with HGT.  But, ify you look just at the means:
+# 2.956 / 2.149 -> 37.6% more tasks with HGT than without.
+# 1.48 / 1.3 -> 13.8% more tasks per site with HGT than without.
+# 0.5077 / 0.6293 -> 19.3% fewer tasks per site per task with HGT than without.
