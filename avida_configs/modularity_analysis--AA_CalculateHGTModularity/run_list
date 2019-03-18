@@ -1,0 +1,51 @@
+set description CalculateHGTModularity_V000
+set email mwiser@msu.edu
+set freq_email Crash
+set priority 1
+set walltime 48 
+set mem_request 2 
+set config_dir config
+set max_cpus 90 
+set beacon_priority y
+set dest_dir /mnt/research/CE_evolvability/hgt_modularity/output/CalculateHGTModularity_V000
+
+######### DESCRIPTION #########################################################
+# Horizontal Gene Transfer Experiments characterizing:
+#  - Effects of the source of the fragment on fragment uptake levels
+###############################################################################
+
+######### GENERAL CONFIGURATION NOTES #########################################
+## avida.cfg Deviations from Default
+# COPY_MUT_PROB 0.00075 (from 0.0075)
+# ENACLE_HGT 1 (from disabled 0)
+# HGT_UPTAKE_HOMOLOGOUS_MATCH 3 (from 1)
+# HGT_MAX_FRAGMENTS_PER_CELL 500 (from 100)
+# HGT_FRAGMENT_SIZE_MEAN 20 (from 10)
+# HGT_RECOMBINATION_RATIO 2.0 (from 1.0)
+# #include INST_SET=instset-heads-hgt.cfg
+###############################################################################
+
+######### EXPERIMENTS SET 5 ###################################################
+# Outputting fragment data like Experiment Set 1 (just HGT no bonus)
+# Additionanlly, providing for the analysis of the effects of fragments
+# Plus the output of the donor and recombination information, which will be
+# fodder for further analysis.
+#
+#
+# 50 Replicates
+# Seeds 104001-104050
+#
+###############################################################################
+
+# HGT in a static environment, no bonus -- a basic control
+104001..104050 V000_Z1_HGT_B0.0_Static      /usr/bin/cp -r /mnt/research/CE_evolvability/hgt_modularity/output/DA_CalculateFragmentInformation/DA-1_Z1_HGT_B0.0_Static_${seed}/data ./ ;         ./avida -a -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment.cfg -set ANALYZE_FILE analyze__static.cfg -set EVENT_FILE events_savefrag__static.cfg;
+
+# HGT in a changing environment, no bonus
+104001..104050 V000_A1_HGT_B0.0_CE         /usr/bin/cp -r /mnt/research/CE_evolvability/hgt_modularity/output/DA_CalculateFragmentInformation/DA-1_A1_HGT_B0.0_CE_${seed}/data ./ ;             ./avida -a -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment__ce_phase_A.cfg -set ANALYZE_FILE analyze__ce_phase_A.cfg -set EVENT_FILE events_savefrag__ce.cfg;
+
+# HGT in a changing environment, no bonus
+104001..104050 V000_Z3_noHGT_B0.0_CE         /usr/bin/cp -r /mnt/research/CE_evolvability/hgt_modularity/output/DA_CalculateFragmentInformation/DA-1_Z3_noHGT_B0.0_CE_${seed}/data ./ ;             ./avida -a -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.0 -set ENVIRONMENT_FILE environment__ce_phase_A.cfg -set ANALYZE_FILE analyze__ce_phase_A.cfg -set EVENT_FILE events_savefrag__ce.cfg;
+
+
+
+

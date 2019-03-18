@@ -1,0 +1,50 @@
+set description DA_CalculateFragmentInformation 
+set email caninoko@msu.edu
+set freq_email Crash
+set priority 1
+set walltime 48 
+set mem_request 2 
+set config_dir config
+set max_cpus 90 
+set beacon_priority y
+set dest_dir /mnt/scratch/caninoko/HGT/InformationTheoryRuns/DA_CalculateFragmentInformation
+
+######### DESCRIPTION #########################################################
+# Horizontal Gene Transfer Experiments characterizing:
+#  - Effects of the source of the fragment on fragment uptake levels
+###############################################################################
+
+######### GENERAL CONFIGURATION NOTES #########################################
+## avida.cfg Deviations from Default
+# COPY_MUT_PROB 0.00075 (from 0.0075)
+# ENACLE_HGT 1 (from disabled 0)
+# HGT_UPTAKE_HOMOLOGOUS_MATCH 3 (from 1)
+# HGT_MAX_FRAGMENTS_PER_CELL 500 (from 100)
+# HGT_FRAGMENT_SIZE_MEAN 20 (from 10)
+# HGT_RECOMBINATION_RATIO 2.0 (from 1.0)
+# #include INST_SET=instset-heads-hgt.cfg
+###############################################################################
+
+######### EXPERIMENTS SET 5 ###################################################
+# Outputting fragment data like Experiment Set 1 (just HGT no bonus)
+# Additionanlly, providing for the analysis of the effects of fragments
+# Plus the output of the donor and recombination information, which will be
+# fodder for further analysis.
+#
+#
+# 50 Replicates
+# Seeds 104001-104050
+#
+###############################################################################
+
+# HGT in a static environment, no bonus -- a basic control
+104001..104050 DA-1_Z1_HGT_B0.0_Static ./avida -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment.cfg -set EVENT_FILE events_savefrag__static.cfg; ./avida -a -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment.cfg -set ANALYZE_FILE analyze__static.cfg -set EVENT_FILE events_savefrag__static.cfg; ./generate_analyze_genomes.py --seed=$seed data/detail-200000.spop data/no_cycle_hgt_fitnessdist-200000.dat environment.cfg data/fragment_info-200000.dat
+
+# HGT in a changing environment, no bonus
+104001..104050 DA-1_A1_HGT_B0.0_CE     ./avida -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment.cfg -set EVENT_FILE events_savefrag__ce.cfg; ./avida -a -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment__ce_phase_A.cfg -set ANALYZE_FILE analyze__ce_phase_A.cfg -set EVENT_FILE events_savefrag__ce.cfg; ./avida -a -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.1 -set ENVIRONMENT_FILE environment__ce_phase_B.cfg -set ANALYZE_FILE analyze__ce_phase_B.cfg -set EVENT_FILE events_savefrag__ce.cfg; ./generate_analyze_genomes.py --seed=$seed data/detail-199500.spop data/A_cycle_hgt_fitnessdist-199500.dat environment__ce_phase_A.cfg data/fragment_info_phase_A-199500.dat; ./generate_analyze_genomes.py --seed=$seed data/detail-199500.spop data/A_cycle_hgt_fitnessdist-199500.dat environment__ce_phase_B.cfg data/fragment_info_phase_A_in_B-199500.dat; ./generate_analyze_genomes.py --seed=$seed data/detail-200000.spop data/B_cycle_hgt_fitnessdist-200000.dat environment__ce_phase_B.cfg data/fragment_info_phase_B-200000.dat; ./generate_analyze_genomes.py --seed=$seed data/detail-200000.spop data/B_cycle_hgt_fitnessdist-200000.dat environment__ce_phase_A.cfg data/fragment_info_phase_B_in_A-200000.dat; 
+
+# no HGT in a changing environment, no bonus -- a basic control
+104001..104100 DA-1_Z3_noHGT_B0.0_CE  ./avida -v4 -s $seed -set HGT_UPTAKE_RECOMBINATION_P 0.0 -set ENVIRONMENT_FILE environment.cfg -set EVENT_FILE events__ce.cfg; 
+
+
+
